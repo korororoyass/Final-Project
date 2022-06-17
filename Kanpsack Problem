@@ -1,0 +1,279 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+int t;
+int maxweight;
+float weight[20], profit[20], density[20];
+
+void printArray(float *array, int length);
+void printArrayInt(int *array, int length);
+void printDensity(float *array, int length);
+void printStatus(float *array1, float *array2, float *array3, int length);
+void sortTerkecil(float *array1, float *array2, int length);
+void sortTerbesar(float *array1, float *array2, int length);
+void greedyByWeight(float *weight, float *profit);
+void greedyByProfit(float *profit, float *weight);
+void greedyByDensity(float *density, float *weight, float *profit);
+
+int main() 
+{
+    system("cls"); 
+
+    printf("************************************\n");
+	printf("******Program Knapsack Problem******\n");
+	printf("************************************\n");
+	printf(" ==================================\n");
+
+    
+    int i;
+    printf("Masukkan Jumlah produk : \n");
+    scanf("%d", &t);
+    
+    printf("Masukkan Weight dan Profit Produk : \n");
+    for(i = 0;i < t; ++i)
+    {
+     scanf("%f%f\n\n", &weight[i], &profit[i]);
+    }
+ 
+    for(i = 0; i < t; ++i)
+    {
+        density[i] = profit[i]/weight[i];
+    }
+	
+    int pilihan;
+    
+    printf("Pilih fungsi\n");
+    printf("1. Greedy By Weight\n");
+    printf("2. Greedy By Profit\n");
+    printf("3. Greedy By Density\n\n");
+    
+    printf("kapasitas maksimum alat angkut : \n");
+    scanf("%d", &maxweight);
+        
+    printf("Pilihan : ");
+    scanf("%d", &pilihan);
+
+    if(pilihan == 1)
+	{
+        system("cls"); 
+
+        printStatus(weight, profit, density, t);
+        greedyByWeight(weight, profit);
+    }
+	else if(pilihan == 2)
+	{
+        system("cls"); 
+        
+        printStatus(weight, profit, density, t);
+        greedyByProfit(profit, weight);
+    }
+	else if(pilihan == 3)
+	{
+        system("cls"); 
+        
+        printStatus(weight, profit, density, t);
+        greedyByDensity(density, weight, profit);
+
+    }
+}
+
+void printArray(float *array, int length)
+{
+    for(int i=0; i<length; i++)
+	{
+        printf("%.3f\t", array[i]);
+    }
+    
+    printf("\n");
+}
+
+void printDensity(float *array, int length)
+{
+    for(int i=0; i<length; i++)
+	{
+        printf("%.3f\t", array[i]);
+    }
+    
+    printf("\n");
+}
+
+void printArrayInt(int *array, int length)
+{
+    for(int i=0;i<length;i++)
+	{
+        printf("%d\t", array[i]);
+    }
+    
+    printf("\n");
+}
+
+void printStatus(float *array1, float *array2, float *array3, int length)
+{
+    printf("W\tP\tD\n");
+    
+    for(int i=0;i<length;i++)
+	{
+        printf("%.3f\t%.3f\t%.3f\n", array1[i], array2[i], array3[i]);
+    }
+    printf("\n");
+}
+
+void sortTerkecil(float *array1, float *array2, int length)
+{
+    float terkecil, temp, temp2; 
+    int index;
+    
+    for(int i=0;i<length;i++)
+	{
+        terkecil = array1[i];
+        for(int j=i;j<length;j++)
+		{
+            if(array1[j] <= terkecil)
+			{
+                terkecil = array1[j];
+                index = j;
+            }
+    	}
+    	
+        temp = array1[i];
+        array1[i] = terkecil;
+        array1[index] = temp;
+        temp2 = array2[i];
+        array2[i] = array2[index];
+        array2[index] = temp2;
+    }
+}
+
+void sortTerbesar(float *array1, float *array2, int length)
+{
+    float terbesar, temp, temp2; 
+    int index;
+    
+    for(int i=0;i<length;i++)
+	{
+        terbesar = array1[i];
+        for(int j=i;j<length;j++)
+		{
+            if(array1[j] >= terbesar)
+			{
+                terbesar = array1[j];
+                index = j;
+            }
+        }
+        
+        temp = array1[i];
+        array1[i] = terbesar;
+        array1[index] = temp;
+        temp2 = array2[i];
+        array2[i] = array2[index];
+        array2[index] = temp2;
+    }
+}
+
+void greedyByWeight(float *weight, float *profit)
+{
+    int x[20] = {0};
+
+    printf("Greedy By Weight\n");
+    printf("Max Weight : %d\n", maxweight);
+    
+    sortTerkecil(weight, profit, t);
+    
+    int totalBobot = 0, totalProfit = 0;
+    bool avaible = true;
+    int i = 0;
+    
+    while(i<t && avaible == true)
+	{
+        totalBobot += weight[i];
+        if (totalBobot <= maxweight)
+		{
+            x[i] = 1;
+            totalProfit += profit[i];
+        }
+			else avaible = false;
+        	i++;
+    }
+    
+    printf("W\t");
+    printArray(weight, t);
+    printf("P\t");
+    printArray(profit, t);
+    printf("Status\t");
+    printArrayInt(x, t);
+    printf("Total Profit : %d", totalProfit);
+}
+
+void greedyByProfit(float *profit, float *weight)
+{
+    int x[20] = {0};
+    
+    printf("Greedy By Profit\n");
+    printf("Max Weight : %d\n", maxweight);
+
+    sortTerbesar(profit, weight, t);
+    
+    int totalBobot = 0, totalProfit = 0;
+    int i = 0;
+    
+    while(i<t)
+	{
+        if (totalBobot + weight[i] <= maxweight){
+            x[i] = 1;
+            totalProfit += profit[i];
+            totalBobot += weight[i];
+        }
+        i++;
+    }
+    
+    printf("P\t");
+    printArray(profit, t);
+    printf("W\t");
+    printArray(weight, t);
+    printf("Status\t");
+    printArrayInt(x, t);
+    printf("Total Profit : %d", totalProfit);
+}
+
+void greedyByDensity(float *density, float *weight, float *profit)
+{
+    int x[20] = {0};
+    float density_copy[t];
+   
+    printf("Greedy By Density\n");
+    printf("Max Weight : %d\n", maxweight);
+    
+    for(int i=0; i<t; i++)
+	{
+        density_copy[i] = density[i];
+    }
+    
+    sortTerbesar(density, weight, t);
+    sortTerbesar(density_copy, profit, t);
+    int totalBobot = 0, totalProfit = 0;
+    bool avaible = true;
+    int i = 0;
+    
+    while(i<t)
+	{
+        if (totalBobot + weight[i] <= maxweight)
+		{
+            x[i] = 1;
+            totalBobot += weight[i];
+            totalProfit += profit[i];
+        }
+        
+        i++;
+    }
+
+    printf("D\t");
+    printDensity(density, t);
+    printf("W\t");
+    printArray(weight, t);
+    printf("P\t");
+    printArray(profit, t);
+    printf("Status\t");
+    printArrayInt(x, t);
+    printf("Total Profit : %d", totalProfit);
+}
